@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  erpnext:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis-cache
+      - redis-queue
+    ports:
+        - "8000:8000"
+  db:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: erpnext
+    volumes:
+      - db-data:/var/lib/mysql
+
+  redis-cache:
+    image: redis:latest
+
+  redis-queue:
+    image: redis:latest
+
+volumes:
+  db-data:
