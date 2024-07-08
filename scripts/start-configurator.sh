@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ls -1 apps > sites/apps.txt
+#ls -1 apps > sites/apps.txt
 bench set-config -g db_host "$DB_HOST"
 bench set-config -gp db_port "$DB_PORT"
 bench set-config -g redis_cache "redis://$REDIS_CACHE"
