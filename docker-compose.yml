@@ -1,30 +1,143 @@
-version: '3.8'
+version: "3"
 
 services:
-  erpnext:
+  backend:
     build:
       context: .
-      dockerfile: Dockerfile
     env_file:
       - .env
-    depends_on:
-      - db
-      - redis-cache
-      - redis-queue
-    ports:
-        - "8000:8000"
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+
   db:
-    image: mariadb:latest
-    environment:
-      MYSQL_ROOT_PASSWORD: erpnext
+    image: mariadb:10.6
+    env_file:
+      - .env
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
     volumes:
       - db-data:/var/lib/mysql
 
-  redis-cache:
-    image: redis:latest
+  frontend:
+    build:
+      context: .
+    depends_on:
+      - websocket
+    env_file:
+      - .env
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - nginx-entrypoint.sh
+    environment:
+      BACKEND: backend:8000
+      FRAPPE_SITE_NAME_HEADER: frontend
+      SOCKETIO: websocket:${SOCKETIO_PORT}
+      UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
+      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
+      UPSTREAM_REAL_IP_RECURSIVE: "off"
+      PROXY_READ_TIMEOUT: 120
+      CLIENT_MAX_BODY_SIZE: 50m
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+    ports:
+      - "8080:8080"
+
+  queue-long:
+    build:
+      context: .
+    env_file:
+      - .env
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - bench
+      - worker
+      - --queue
+      - long,default,short
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+
+  queue-short:
+    build:
+      context: .
+    env_file:
+      - .env
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - bench
+      - worker
+      - --queue
+      - short,default
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
 
   redis-queue:
-    image: redis:latest
+    image: redis:6.2-alpine
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - redis-queue-data:/data
+
+  redis-cache:
+    image: redis:6.2-alpine
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - redis-cache-data:/data
+
+  scheduler:
+    build:
+      context: .
+    env_file:
+      - .env
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - bench
+      - schedule
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+
+  websocket:
+    build:
+      context: .
+    env_file:
+      - .env
+    deploy:
+      restart_policy:
+        condition: on-failure
+    command:
+      - node
+      - /home/frappe/frappe-bench/apps/frappe/socketio.js
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
 
 volumes:
   db-data:
+  redis-queue-data:
+  redis-cache-data:
+  sites:
+  logs:

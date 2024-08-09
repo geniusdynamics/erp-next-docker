@@ -1,6 +1,6 @@
 ## ERP NEXT DOCKER IMAGE
 
-A better ERP-NEXT Docker image with less services and more control.
+Custom erpnext image
 
 # Still under development
 
