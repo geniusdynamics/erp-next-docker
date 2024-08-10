@@ -29,13 +29,14 @@ jobs:
           export APPS_JSON_BASE64=$(base64 -w 0 apps.json)
           echo "APPS_JSON_BASE64=$APPS_JSON_BASE64" >> $GITHUB_ENV
 
-      - name: Build Multi-Platform Docker Image
-        run: |
-          docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            --build-arg=APPS_JSON_BASE64=${{ env.APPS_JSON_BASE64 }} \
-            --tag=custom-erpnext:v1.0.0 \
-            --tag=geniusdynamics/custom-erpnext:v1.0.0 \
-            --push .
+      - name: Build and push
+      - uses: docker/build-push-action@v6
+      - with:
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/custom-erpnext:latest
+          platforms: linux/amd64,linux/arm64
+          push: true
+          build-args: |
+                APPS_JSON_BASE64=${{ env.APPS_JSON_BASE64 }}
+
 
       # No need to manually tag or push, it's handled in the build command above
