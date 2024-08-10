@@ -30,8 +30,8 @@ jobs:
           echo "APPS_JSON_BASE64=$APPS_JSON_BASE64" >> $GITHUB_ENV
 
       - name: Build and push
-      - uses: docker/build-push-action@v6
-      - with:
+        uses: docker/build-push-action@v6
+        with:
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/custom-erpnext:latest
           platforms: linux/amd64,linux/arm64
           push: true
