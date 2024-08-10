@@ -68,6 +68,10 @@ services:
         done;
         echo "sites/common_site_config.json found";
         bench new-site --no-mariadb-socket --admin-password=admin --db-root-password=admin --install-app erpnext --set-default frontend;
+        bench --site frontend install-app hrms;
+        bench --site frontend install-app payments;       
+        bench --site frontend install-app education;
+        bench --site frontend install-app print_designer;
 
   db:
     image: mariadb:10.6
