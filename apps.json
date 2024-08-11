@@ -102,5 +102,8 @@
   {
     "url": "https://github.com/scopen-coop/jobcard_planning",
     "branch": "version-15"
+  },  {
+    "url": "https://github.com/earthians/marley",
+    "branch": "version-15"
   }
 ]
