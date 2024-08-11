@@ -2,7 +2,7 @@ version: "3"
 
 services:
   backend:
-    image: geniusdynamics/custom-erpnext:v1.0.0
+    image: geniusdynamics/custom-erpnext:v15.32.1-ns.1
     deploy:
       restart_policy:
         condition: on-failure
@@ -11,7 +11,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   configurator:
-    image: geniusdynamics/custom-erpnext:v1.0.0
+    image: geniusdynamics/custom-erpnext:v15.32.1-ns.1
     deploy:
       restart_policy:
         condition: none
@@ -39,7 +39,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   create-site:
-    image: geniusdynamics/custom-erpnext:v1.0.0
+    image: geniusdynamics/custom-erpnext:v15.32.1-ns.1
     deploy:
       restart_policy:
         condition: none
@@ -93,7 +93,7 @@ services:
       - db-data:/var/lib/mysql
 
   frontend:
-    image: geniusdynamics/custom-erpnext:v1.0.0
+    image: geniusdynamics/custom-erpnext:v15.32.1-ns.1
     depends_on:
       - websocket
     deploy:
@@ -117,8 +117,7 @@ services:
       - "8080:8080"
 
   queue-long:
-    image: geniusdynamics/custom-erpnext:v1.0.0
-    deploy:
+    image: geniusdynamics/custom-erpnext:v15.32.1-ns.1
       restart_policy:
         condition: on-failure
     command:
@@ -131,7 +130,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   queue-short:
-    image: geniusdynamics/custom-erpnext:v1.0.0
+    image: geniusdynamics/custom-erpnext:v15.32.1-ns.1
     deploy:
       restart_policy:
         condition: on-failure
@@ -161,7 +160,7 @@ services:
       - redis-cache-data:/data
 
   scheduler:
-    image: geniusdynamics/custom-erpnext:v1.0.0
+    image: geniusdynamics/custom-erpnext:v15.32.1-ns.1
     deploy:
       restart_policy:
         condition: on-failure
@@ -173,7 +172,7 @@ services:
       - logs:/home/frappe/frappe-bench/logs
 
   websocket:
-    image: geniusdynamics/custom-erpnext:v1.0.0
+    image: geniusdynamics/custom-erpnext:v15.32.1-ns.1
     deploy:
       restart_policy:
         condition: on-failure
