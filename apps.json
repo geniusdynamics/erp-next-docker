@@ -44,6 +44,14 @@
     "branch": "version-15"
   },
   {
+    "url": "https://github.com/frappe/lms",
+    "branch": "main"
+  },
+  {
+    "url": "https://github.com/frappe/wiki",
+    "branch": "master"
+  },
+  {
     "url": "https://github.com/mymi14s/frappe_paystack",
     "branch": "version-15"
   },
@@ -57,6 +65,46 @@
   },
   {
     "url": "https://github.com/bhavesh95863/whitelabel",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/pibico/pibiDAV",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/pibico/pibicard",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/frappe/lending",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/frappe/helpdesk",
+    "branch": "main"
+  },
+  {
+    "url": "https://github.com/frappe/webshop",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/pibico/pibicut",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/alyf-de/erpnext_pdf-on-submit",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/frappe/insights",
+    "branch": "main"
+  },
+  {
+    "url": "https://github.com/aakvatech/PropMS",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/scopen-coop/jobcard_planning",
     "branch": "version-15"
   }
 ]
