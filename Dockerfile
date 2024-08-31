@@ -98,6 +98,7 @@ RUN apt-get update \
     rlwrap \
     tk8.6-dev \
     cron \
+    libmagic1 \
     # For pandas
     gcc \
     build-essential \

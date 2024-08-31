@@ -142,5 +142,9 @@
   {
     "url": "https://github.com/compgeniuses/erpnext-expense-management-module",
     "branch": "main"
+  },
+  {
+    "url": "https://github.com/Upeosoft-Limited/Frappe-QR-Code",
+    "branch": "main"
   }
 ]
