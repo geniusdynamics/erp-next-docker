@@ -134,5 +134,9 @@
   {
     "url": "https://github.com/agritheory/inventory_tools",
     "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/nesscale-com/employee_self_service",
+    "branch": "version-15"
   }
 ]
