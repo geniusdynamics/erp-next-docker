@@ -126,5 +126,9 @@
   {
     "url": "https://github.com/agritheory",
     "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/agritheory/check_run/",
+    "branch": "version-15"
   }
 ]
