@@ -128,7 +128,11 @@
     "branch": "version-15"
   },
   {
-    "url": "https://github.com/agritheory/check_run/",
+    "url": "https://github.com/agritheory/check_run",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/agritheory/inventory_tools",
     "branch": "version-15"
   }
 ]
