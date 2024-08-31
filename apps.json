@@ -122,5 +122,9 @@
   {
     "url": "https://github.com/agritheory/cloud_storage",
     "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/agritheory",
+    "branch": "version-15"
   }
 ]
