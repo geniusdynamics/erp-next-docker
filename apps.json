@@ -138,5 +138,10 @@
   {
     "url": "https://github.com/nesscale-com/employee_self_service",
     "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/compgeniuses/erpnext-expense-management-module",
+    "branch": "main"
   }
+]
 ]
