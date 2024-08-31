@@ -118,5 +118,9 @@
   {
     "url": "https://github.com/frappe/builder",
     "branch": "master"
+  },
+  {
+    "url": "https://github.com/agritheory/cloud_storage",
+    "branch": "version-15"
   }
 ]
