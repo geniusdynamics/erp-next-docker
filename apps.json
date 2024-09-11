@@ -150,9 +150,5 @@
   {
     "url": "https://github.com/compgeniuses/erpnext-pibical",
     "branch": "version-13"
-  },
-  {
-    "url": "https://github.com/frappe/drive",
-    "branch": "main"
   }
 ]
