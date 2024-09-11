@@ -8,7 +8,7 @@
     "branch": "version-15"
   },
   {
-    "url": "https://github.com/navariltd/navari_csf_ke",
+    "url": "https://github.com/genforge/navari_csf_ke",
     "branch": "version-15"
   },
   {
@@ -16,27 +16,27 @@
     "branch": "version-15"
   },
   {
-    "url": "https://github.com/navariltd/kenya-compliance",
+    "url": "https://github.com/genforge/kenya-compliance",
     "branch": "develop"
   },
   {
-    "url": "https://github.com/navariltd/frappe-mpesa-payments",
+    "url": "https://github.com/genforge/frappe-mpesa-payments",
     "branch": "develop"
   },
   {
-    "url": "https://github.com/navariltd/navari-mpesa-b2c",
+    "url": "https://github.com/genforge/navari-mpesa-b2c",
     "branch": "develop"
   },
   {
-    "url": "https://github.com/navariltd/nl-attendance-timesheet",
+    "url": "https://github.com/genforge/nl-attendance-timesheet",
     "branch": "version-15"
   },
   {
-    "url": "https://github.com/navariltd/nl-piece-rate-pay",
+    "url": "https://github.com/genforge/nl-piece-rate-pay",
     "branch": "version-15"
   },
   {
-    "url": "https://github.com/shridarpatil/frappe_whatsapp",
+    "url": "https://github.com/genforge/frappe_whatsapp",
     "branch": "master"
   },
   {
@@ -52,7 +52,7 @@
     "branch": "master"
   },
   {
-    "url": "https://github.com/mymi14s/frappe_paystack",
+    "url": "https://github.com/genforge/frappe_paystack",
     "branch": "version-15"
   },
   {
@@ -64,15 +64,15 @@
     "branch": "version-15"
   },
   {
-    "url": "https://github.com/bhavesh95863/whitelabel",
+    "url": "https://github.com/genforge/whitelabel",
     "branch": "version-15"
   },
   {
-    "url": "https://github.com/pibico/pibiDAV",
+    "url": "https://github.com/genforge/pibiDAV",
     "branch": "version-15"
   },
   {
-    "url": "https://github.com/pibico/pibicard",
+    "url": "https://github.com/genforge/pibicard",
     "branch": "version-15"
   },
   {
@@ -84,11 +84,11 @@
     "branch": "main"
   },
   {
-    "url": "https://github.com/pibico/pibicut",
+    "url": "https://github.com/genforge/pibicut",
     "branch": "version-15"
   },
   {
-    "url": "https://github.com/alyf-de/erpnext_pdf-on-submit",
+    "url": "https://github.com/genforge/erpnext_pdf-on-submit",
     "branch": "version-15"
   },
   {
@@ -96,15 +96,11 @@
     "branch": "main"
   },
   {
-    "url": "https://github.com/aakvatech/PropMS",
-    "branch": "version-15"
-  },
-  {
-    "url": "https://github.com/scopen-coop/jobcard_planning",
+    "url": "https://github.com/genforge/jobcard_planning",
     "branch": "version-15"
   },  
   {
-    "url": "https://github.com/earthians/marley",
+    "url": "https://github.com/genforge/marley",
     "branch": "version-15"
   },
   {
@@ -120,23 +116,23 @@
     "branch": "master"
   },
   {
-    "url": "https://github.com/agritheory/cloud_storage",
+    "url": "https://github.com/genforge/cloud_storage",
     "branch": "version-15"
   },
   {
-    "url": "https://github.com/agritheory/beam",
+    "url": "https://github.com/genforge/beam",
     "branch": "version-15"
   },
   {
-    "url": "https://github.com/agritheory/check_run",
+    "url": "https://github.com/genforge/check_run",
     "branch": "version-15"
   },
   {
-    "url": "https://github.com/agritheory/inventory_tools",
+    "url": "https://github.com/genforge/inventory_tools",
     "branch": "version-15"
   },
   {
-    "url": "https://github.com/nesscale-com/employee_self_service",
+    "url": "https://github.com/genforge/employee_self_service",
     "branch": "version-15"
   },
   {
@@ -144,7 +140,7 @@
     "branch": "main"
   },
   {
-    "url": "https://github.com/Upeosoft-Limited/Frappe-QR-Code",
+    "url": "https://github.com/genforge/Frappe-QR-Code",
     "branch": "main"
   },
   {
