@@ -158,9 +158,5 @@
   {
     "url": "https://github.com/genforge/ERPNEXT-POS",
     "branch": "main"
-  },
-  {
-    "url": "https://github.com/genforge/raven",
-    "branch": "main"
   }
 ]
