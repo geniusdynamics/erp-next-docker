@@ -150,5 +150,13 @@
   {
     "url": "https://github.com/frappe/drive",
     "branch": "main"
+  },
+  {
+    "url": "https://github.com/genforge/GETPOS",
+    "branch": "version-15"
+  },
+  {
+    "url": "https://github.com/genforge/ERPNEXT-POS",
+    "branch": "main"
   }
 ]
