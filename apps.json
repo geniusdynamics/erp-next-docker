@@ -98,7 +98,7 @@
   {
     "url": "https://github.com/genforge/jobcard_planning",
     "branch": "version-15"
-  },  
+  },
   {
     "url": "https://github.com/genforge/marley",
     "branch": "version-15"
@@ -146,14 +146,10 @@
   {
     "url": "https://github.com/compgeniuses/erpnext-pibical",
     "branch": "version-13"
-  }  ,
+  },
   {
     "url": "https://github.com/frappe/drive",
     "branch": "main"
-  },
-  {
-    "url": "https://github.com/genforge/GETPOS",
-    "branch": "version-15"
   },
   {
     "url": "https://github.com/genforge/ERPNEXT-POS",
