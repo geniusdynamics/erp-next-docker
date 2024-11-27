@@ -16,6 +16,10 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          version: "lab:latest"
+          driver: cloud
+          endpoint: "kemboi22/main"
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
