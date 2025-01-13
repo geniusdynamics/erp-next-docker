@@ -93,7 +93,7 @@
   },
   {
     "url": "https://github.com/frappe/insights",
-    "branch": "main"
+    "branch": "develop"
   },
   {
     "url": "https://github.com/genforge/jobcard_planning",
@@ -105,6 +105,10 @@
   },
   {
     "url": "https://github.com/frappe/gameplan",
+    "branch": "main"
+  },
+  {
+    "url": "https://github.com/genforge/raven",
     "branch": "main"
   },
   {
@@ -158,5 +162,10 @@
   {
     "url": "https://github.com/genforge/ERPNEXT-POS",
     "branch": "main"
+  }
+  ,
+  {
+    "url": "https://github.com/genforge/PropMS",
+    "branch": "version-15"
   }
 ]
