@@ -33,7 +33,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          tags: geniusdynamics/erpnext:v15.49.1
+          tags: geniusdynamics/erpnext:v15.50.1
           push: true
           build-args: |
                 APPS_JSON_BASE64=${{ env.APPS_JSON_BASE64 }}
