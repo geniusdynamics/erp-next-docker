@@ -171,9 +171,5 @@
   {
     "url": "https://github.com/genforge/Etims",
     "branch": "version-1.0.1"
-  } ,
-  {
-    "url": "https://github.com/frappe/press",
-    "branch": "master"
   }
 ]
