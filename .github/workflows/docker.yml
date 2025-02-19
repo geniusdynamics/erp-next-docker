@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - compgeniuses-patch-1
+      - press
   workflow_dispatch:
 
 jobs:
