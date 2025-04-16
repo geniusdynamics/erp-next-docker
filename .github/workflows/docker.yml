@@ -32,7 +32,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          tags: geniusdynamics/erpnext:v15.53.1
+          tags: geniusdynamics/erpnext:v15.58.1
 
           push: true
           build-args: |
