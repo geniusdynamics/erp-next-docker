@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   erpnext:
-    image: geniusdynamics/erpnext-ns8:latest # Replace with your actual built image after a build
+    image: geniusdynamics/erpnext:latest # Replace with your actual built image after a build
     container_name: erpnext_app
     restart: unless-stopped
     environment:
