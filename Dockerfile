@@ -27,12 +27,6 @@ RUN useradd -ms /bin/bash frappe \
     && npm install -g yarn \
     && nvm alias default ${NODE_VERSION} \
     && rm -rf /home/frappe/.nvm/.cache \
-    && if [ "$(uname -m)" = "aarch64" ]; then export ARCH=arm64; fi \
-    && if [ "$(uname -m)" = "x86_64" ]; then export ARCH=amd64; fi \
-    && downloaded_file=wkhtmltox_0.12.6.1-3.bookworm_${ARCH}.deb \
-    && curl -sLO https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/$downloaded_file \
-    && apt-get install -y ./$downloaded_file \
-    && rm $downloaded_file \
     && rm -rf /var/lib/apt/lists/* \
     && pip3 install frappe-bench
 
@@ -73,8 +67,29 @@ ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 ENV FRAPPE_DIR /home/frappe/frappe-bench
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y curl git mariadb-client wkhtmltopdf libmysqlclient-dev gettext-base nginx \
+    && apt-get install --no-install-recommends -y curl git mariadb-client gettext-base nginx \
     && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y \
+        ca-certificates \
+        fontconfig \
+        libxrender1 \
+        libxtst6 \
+        libx11-6 \
+        xfonts-base \
+        xfonts-75dpi && \
+    ARCH="" && \
+    if [ "$(uname -m)" = "aarch64" ]; then export ARCH=arm64; fi && \
+    if [ "$(uname -m)" = "x86_64" ]; then export ARCH=amd64; fi && \
+    if [ -z "$ARCH" ]; then echo "Unsupported architecture for wkhtmltopdf"; exit 1; fi && \
+    downloaded_file="wkhtmltox_0.12.6.1-3.bookworm_${ARCH}.deb" && \
+    echo "Downloading $downloaded_file for $ARCH architecture..." && \
+    curl -sLO "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/$downloaded_file" && \
+    echo "Installing $downloaded_file..." && \
+    apt-get install -y ./"$downloaded_file" && \
+    echo "Cleaning up $downloaded_file..." && \
+    rm ./"$downloaded_file" && \
+    rm -rf /var/lib/apt/lists/*
 RUN useradd -ms /bin/bash -u 1000 frappe
 
 COPY --from=builder --chown=frappe:frappe /home/frappe/frappe-bench /home/frappe/frappe-bench
