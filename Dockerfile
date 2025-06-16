@@ -37,11 +37,11 @@ RUN apt-get update && \
 
 RUN npm install -g yarn --verbose
 
-RUN pip3 install frappe-bench
-
 # ----------- Builder stage ----------
 FROM base AS builder
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y     wget libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libffi-dev liblcms2-dev     libldap2-dev libmariadb-dev libsasl2-dev libtiff5-dev libwebp-dev redis-tools rlwrap tk8.6-dev cron     libmagic1 gcc build-essential libbz2-dev  && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install frappe-bench
 
 ARG APPS_JSON_BASE64
 ARG APPS_JSON_URL
