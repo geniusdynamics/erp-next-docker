@@ -6,7 +6,7 @@ on:
   workflow_dispatch: # Allow manual triggering
   push:
     branches:
-      - autobuild-enhancements # Or your default branch
+      - main # Or your default branch
     paths:
       - 'Dockerfile'
       - 'apps.json'
@@ -58,14 +58,14 @@ jobs:
           driver-opts: image=moby/buildkit:v0.12.4 # Pin buildkit version for stability
 
       - name: Log in to Docker Hub
-        if: secrets.DOCKER_HUB_USERNAME && secrets.DOCKER_HUB_ACCESS_TOKEN
+        if: ${{ secrets.DOCKER_HUB_USERNAME != '' && secrets.DOCKER_HUB_ACCESS_TOKEN != '' }}
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Log in to GitHub Container Registry
-        if: secrets.GITHUB_TOKEN
+        if: ${{ secrets.GITHUB_TOKEN != '' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
