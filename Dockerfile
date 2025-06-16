@@ -26,7 +26,18 @@ COPY --from=node:18.18.2-alpine /usr/local/bin/node /usr/local/bin/node
 COPY --from=node:18.18.2-alpine /usr/local/bin/npm /usr/local/bin/npm
 COPY --from=node:18.18.2-alpine /usr/local/lib/node_modules /usr/local/lib/node_modules
 
-RUN useradd -ms /bin/bash frappe  && apt-get update  && apt-get install --no-install-recommends -y       curl git vim nginx gettext-base file       libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0 libpangocairo-1.0-0       restic gpg mariadb-client less libpq-dev postgresql-client wait-for-it jq  && npm install -g yarn  && rm -rf /var/lib/apt/lists/*  && pip3 install frappe-bench
+RUN useradd -ms /bin/bash frappe
+
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y \
+        curl git vim nginx gettext-base file \
+        libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0 libpangocairo-1.0-0 \
+        restic gpg mariadb-client less libpq-dev postgresql-client wait-for-it jq && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN npm install -g yarn
+
+RUN pip3 install frappe-bench
 
 # ----------- Builder stage ----------
 FROM base AS builder
