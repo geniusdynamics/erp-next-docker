@@ -6,7 +6,7 @@ on:
   workflow_dispatch: # Allow manual triggering
   push:
     branches:
-      - autobuild-enhancements # User-specified branch
+      - autobuild-enhancements
     paths:
       - 'Dockerfile'
       - 'apps.json'
@@ -120,7 +120,7 @@ jobs:
 
       - name: Summary
         run: |
-          echo "Build completed."
+          echo "✅ Build completed."
           echo "ERPNext Version: ${{ env.ERPNext_VERSION_TAG }}"
           echo "Frappe Branch: ${{ env.FRAPPE_BRANCH_FOR_BUILD }}"
           echo "Tags pushed: ${{ env.FINAL_DOCKER_TAGS }}"
