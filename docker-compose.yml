@@ -1,191 +1,92 @@
-version: "3"
+version: '3.8'
 
 services:
-  backend:
-    image: geniusdynamics/custom-erpnext:v15.32.1-ns.1
-    deploy:
-      restart_policy:
-        condition: on-failure
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
-
-  configurator:
-    image: geniusdynamics/custom-erpnext:v15.32.1-ns.1
-    deploy:
-      restart_policy:
-        condition: none
-    entrypoint:
-      - bash
-      - -c
-    # add redis_socketio for backward compatibility
-    command:
-      - >
-        ls -1 apps > sites/apps.txt;
-        bench set-config -g db_host $$DB_HOST;
-        bench set-config -gp db_port $$DB_PORT;
-        bench set-config -g redis_cache "redis://$$REDIS_CACHE";
-        bench set-config -g redis_queue "redis://$$REDIS_QUEUE";
-        bench set-config -g redis_socketio "redis://$$REDIS_QUEUE";
-        bench set-config -gp socketio_port $$SOCKETIO_PORT;
+  erpnext:
+    image: geniusdynamics/erpnext-ns8:latest # Replace with your actual built image after a build
+    container_name: erpnext_app
+    restart: unless-stopped
     environment:
-      DB_HOST: db
-      DB_PORT: "3306"
-      REDIS_CACHE: redis-cache:6379
-      REDIS_QUEUE: redis-queue:6379
-      SOCKETIO_PORT: "9000"
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
+      # --- Database Settings (ensure these match your db service) ---
+      - DB_HOST=db
+      - DB_PORT=3306
+      # DB_USER, DB_PASSWORD, DB_NAME are usually set within Frappe once common_site_config.json is populated.
+      # The entrypoint relies on common_site_config.json being populated (e.g. by NS8 or manually).
+      # For initial setup without NS8, you might need to exec in and run 'bench set-config ...'
+      # or ensure your DB service creates the user/db and common_site_config.json reflects that.
 
-  create-site:
-    image: geniusdynamics/custom-erpnext:v15.32.1-ns.1
-    deploy:
-      restart_policy:
-        condition: none
+      # --- Redis Settings (ensure these match your redis services) ---
+      - REDIS_CACHE=redis://redis-cache:6379
+      - REDIS_QUEUE=redis://redis-queue:6379
+      # REDIS_SOCKETIO is often the same as REDIS_QUEUE; Frappe setup will handle this.
+
+      # --- Site Creation Settings ---
+      - ENABLE_AUTO_SITE=true
+      - SITES=site1.localhost,site2.localhost
+      - ADMIN_PASS=admin # Default password for sites created by create_site.sh
+      # - ERPNEXT_APPS_JSON_BASE64= # Optional: to pass apps.json for build-time install_apps.sh if not using repo's apps.json or APPS_JSON_URL
+
+      # --- Other Frappe Settings ---
+      - FRAPPE_SITE_NAME_HEADER=$$host # For Nginx to correctly route requests to sites if using a proxy
+      - SOCKETIO_PORT=9000 # Port for Frappe socketio, ensure it matches bench config
+
     volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
-    entrypoint:
-      - bash
-      - -c
-    command:
-      - >
-        wait-for-it -t 120 db:3306;
-        wait-for-it -t 120 redis-cache:6379;
-        wait-for-it -t 120 redis-queue:6379;
-        export start=`date +%s`;
-        until [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".db_host // empty"` ]] && \
-          [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".redis_cache // empty"` ]] && \
-          [[ -n `grep -hs ^ sites/common_site_config.json | jq -r ".redis_queue // empty"` ]];
-        do
-          echo "Waiting for sites/common_site_config.json to be created";
-          sleep 5;
-          if (( `date +%s`-start > 120 )); then
-            echo "could not find sites/common_site_config.json with required keys";
-            exit 1
-          fi
-        done;
-        echo "sites/common_site_config.json found";
-        bench new-site --no-mariadb-socket --admin-password=admin --db-root-password=admin --install-app erpnext --set-default frontend;
-        bench --site frontend install-app hrms;
-        bench --site frontend install-app payments;       
-        bench --site frontend install-app education;
-        bench --site frontend install-app print_designer;
+      - erpnext_sites:/home/frappe/frappe-bench/sites
+      - erpnext_logs:/home/frappe/frappe-bench/logs
+      # You might want to mount your local apps.json for testing build-time app installation if not baked into the image
+      # - ./apps.json:/home/frappe/frappe-bench/apps.json # This is read by install_apps.sh at build time if present in context.
+                                                          # For runtime, apps are already part of the image.
+    ports:
+      - "8000:8000" # Expose Frappe's gunicorn port directly for testing
+    depends_on:
+      db:
+        condition: service_healthy
+      redis-cache:
+        condition: service_started
+      redis-queue:
+        condition: service_started
+    # The image ENTRYPOINT is ["/usr/local/bin/entrypoint.sh"] and CMD is ["start"] by default.
+    # To test site creation manually (if ENABLE_AUTO_SITE=false or for specific args):
+    #   docker-compose exec erpnext create-site
+    # To run other bench commands:
+    #   docker-compose exec erpnext bench --site site1.localhost list-apps
+    #   docker-compose exec erpnext bench backup --with-files
 
   db:
     image: mariadb:10.6
+    container_name: erpnext_db
     healthcheck:
-      test: mysqladmin ping -h localhost --password=admin
-      interval: 1s
-      retries: 15
-    deploy:
-      restart_policy:
-        condition: on-failure
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--password=${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s # Increased interval for less aggressive health checks
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: admin # Change this in production!
+    volumes:
+      - db_data:/var/lib/mysql
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
       - --skip-character-set-client-handshake
-      - --skip-innodb-read-only-compressed # Temporary fix for MariaDB 10.6
-    environment:
-      MYSQL_ROOT_PASSWORD: admin
-    volumes:
-      - db-data:/var/lib/mysql
-
-  frontend:
-    image: geniusdynamics/custom-erpnext:v15.32.1-ns.1
-    depends_on:
-      - websocket
-    deploy:
-      restart_policy:
-        condition: on-failure
-    command:
-      - nginx-entrypoint.sh
-    environment:
-      BACKEND: backend:8000
-      FRAPPE_SITE_NAME_HEADER: frontend
-      SOCKETIO: websocket:9000
-      UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
-      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
-      UPSTREAM_REAL_IP_RECURSIVE: "off"
-      PROXY_READ_TIMEOUT: 120
-      CLIENT_MAX_BODY_SIZE: 50m
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
-    ports:
-      - "8080:8080"
-
-  queue-long:
-    image: geniusdynamics/custom-erpnext:v15.32.1-ns.1
-      restart_policy:
-        condition: on-failure
-    command:
-      - bench
-      - worker
-      - --queue
-      - long,default,short
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
-
-  queue-short:
-    image: geniusdynamics/custom-erpnext:v15.32.1-ns.1
-    deploy:
-      restart_policy:
-        condition: on-failure
-    command:
-      - bench
-      - worker
-      - --queue
-      - short,default
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
-
-  redis-queue:
-    image: redis:6.2-alpine
-    deploy:
-      restart_policy:
-        condition: on-failure
-    volumes:
-      - redis-queue-data:/data
+      - --skip-innodb-read-only-compressed # Specific to MariaDB 10.6 issues
 
   redis-cache:
     image: redis:6.2-alpine
-    deploy:
-      restart_policy:
-        condition: on-failure
+    container_name: erpnext_redis_cache
+    restart: unless-stopped
     volumes:
-      - redis-cache-data:/data
+      - redis_cache_data:/data
 
-  scheduler:
-    image: geniusdynamics/custom-erpnext:v15.32.1-ns.1
-    deploy:
-      restart_policy:
-        condition: on-failure
-    command:
-      - bench
-      - schedule
+  redis-queue:
+    image: redis:6.2-alpine
+    container_name: erpnext_redis_queue
+    restart: unless-stopped
     volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
-
-  websocket:
-    image: geniusdynamics/custom-erpnext:v15.32.1-ns.1
-    deploy:
-      restart_policy:
-        condition: on-failure
-    command:
-      - node
-      - /home/frappe/frappe-bench/apps/frappe/socketio.js
-    volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
+      - redis_queue_data:/data
 
 volumes:
-  db-data:
-  redis-queue-data:
-  redis-cache-data:
-  sites:
-  logs:
+  erpnext_sites: # Stores site-specific data, apps, configs
+  erpnext_logs:  # Stores Frappe logs
+  db_data:       # MariaDB persistent data
+  redis_cache_data: # Redis cache persistent data (optional)
+  redis_queue_data: # Redis queue persistent data (optional)
