@@ -21,11 +21,12 @@ RUN useradd -ms /bin/bash frappe \
     && apt-get install --no-install-recommends -y curl git vim nginx gettext-base file libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0 libpangocairo-1.0-0 restic gpg mariadb-client less libpq-dev postgresql-client wait-for-it jq \
     && mkdir -p /home/frappe/.nvm \
     && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash \
-    && . /home/frappe/.nvm/nvm.sh \
-    && nvm install ${NODE_VERSION} \
-    && nvm use ${NODE_VERSION} \
-    && npm install -g yarn \
-    && nvm alias default ${NODE_VERSION} \
+    && export NVM_DIR="/home/frappe/.nvm" \
+    && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+    nvm install ${NODE_VERSION} && \
+    nvm use ${NODE_VERSION} && \
+    npm install -g yarn && \
+    nvm alias default ${NODE_VERSION} \
     && rm -rf /home/frappe/.nvm/.cache \
     && rm -rf /var/lib/apt/lists/* \
     && pip3 install frappe-bench
