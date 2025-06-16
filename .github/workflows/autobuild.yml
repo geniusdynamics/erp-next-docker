@@ -18,8 +18,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      HAS_DOCKER_HUB_CREDS: ${{ secrets.DOCKER_HUB_USERNAME && secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      HAS_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DOCKER_HUB_USERNAME_SET: ${{ secrets.DOCKER_HUB_USERNAME != '' }}
+      DOCKER_HUB_ACCESS_TOKEN_SET: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN != '' }}
+      GITHUB_TOKEN_SET: ${{ secrets.GITHUB_TOKEN != '' }}
 
     steps:
       - name: Checkout Repository
@@ -52,14 +53,14 @@ jobs:
           driver-opts: image=moby/buildkit:v0.12.4
 
       - name: Log in to Docker Hub
-        if: env.HAS_DOCKER_HUB_CREDS == 'true'
+        if: env.DOCKER_HUB_USERNAME_SET == 'true' && env.DOCKER_HUB_ACCESS_TOKEN_SET == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Log in to GitHub Container Registry
-        if: env.HAS_GITHUB_TOKEN == 'true'
+        if: env.GITHUB_TOKEN_SET == 'true'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -88,12 +89,12 @@ jobs:
 
           DOCKER_TAGS=""
 
-          if [ "${{ env.HAS_DOCKER_HUB_CREDS }}" = "true" ]; then
+          if [ "${{ env.DOCKER_HUB_USERNAME_SET }}" = "true" ] && [ "${{ env.DOCKER_HUB_ACCESS_TOKEN_SET }}" = "true" ]; then
             DOCKER_TAGS="$DOCKER_TAGS,$DOCKER_IMAGE_NAME_DH:$TAG_VERSION"
             DOCKER_TAGS="$DOCKER_TAGS,$DOCKER_IMAGE_NAME_DH:$TAG_MAJOR"
           fi
 
-          if [ "${{ env.HAS_GITHUB_TOKEN }}" = "true" ]; then
+          if [ "${{ env.GITHUB_TOKEN_SET }}" = "true" ]; then
             DOCKER_TAGS="$DOCKER_TAGS,$DOCKER_IMAGE_NAME_GHCR:$TAG_VERSION"
             DOCKER_TAGS="$DOCKER_TAGS,$DOCKER_IMAGE_NAME_GHCR:$TAG_MAJOR"
           fi
