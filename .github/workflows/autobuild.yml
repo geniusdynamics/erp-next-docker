@@ -6,7 +6,7 @@ on:
   workflow_dispatch: # Allow manual triggering
   push:
     branches:
-      - autobuild-enhancements # Or your default branch
+      - autobuild-enhancements # User-specified branch
     paths:
       - 'Dockerfile'
       - 'apps.json'
@@ -16,9 +16,10 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read # To checkout the repo
-      packages: write # To push to GHCR if used
+
+    env:
+      HAS_DOCKER_HUB_CREDS: ${{ secrets.DOCKER_HUB_USERNAME && secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      HAS_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout Repository
@@ -27,45 +28,38 @@ jobs:
       - name: Fetch Latest ERPNext Release Tag
         id: get_erpnext_tag
         run: |
-          # Fetch the latest release tag from frappe/erpnext
-          # This usually includes a 'v', e.g., v15.2.0
           LATEST_ERPNext_TAG=$(curl -sL https://api.github.com/repos/frappe/erpnext/releases/latest | jq -r .tag_name)
-          if [ -z "$LATEST_ERPNext_TAG" ] || [ "$LATEST_ERPNext_TAG" == "null" ]; then
+          if [ -z "$LATEST_ERPNext_TAG" ] || [ "$LATEST_ERPNext_TAG" = "null" ]; then
             echo "Failed to fetch latest ERPNext tag. Exiting."
             exit 1
           fi
           echo "Fetched ERPNext Tag: $LATEST_ERPNext_TAG"
           echo "ERPNext_VERSION_TAG=$LATEST_ERPNext_TAG" >> $GITHUB_ENV
 
-          # Determine FRAPPE_BRANCH based on the tag (e.g., v15.x.y -> version-15)
-          # This is a common pattern for Frappe framework versions.
-          FRAPPE_MAJOR_VERSION=$(echo $LATEST_ERPNext_TAG | cut -d. -f1 | sed 's/v//') # e.g., 15
+          FRAPPE_MAJOR_VERSION=$(echo $LATEST_ERPNext_TAG | cut -d. -f1 | sed 's/v//')
           FRAPPE_BRANCH="version-${FRAPPE_MAJOR_VERSION}"
-          echo "Determined FRAPPE_BRANCH: $FRAPPE_BRANCH"
           echo "FRAPPE_BRANCH_FOR_BUILD=$FRAPPE_BRANCH" >> $GITHUB_ENV
 
-          # Determine short tag for Docker image (e.g., v15.2.0 -> 15.2.0)
           IMAGE_TAG_VERSION=$(echo $LATEST_ERPNext_TAG | sed 's/v//')
           echo "IMAGE_TAG_VERSION=$IMAGE_TAG_VERSION" >> $GITHUB_ENV
 
-
-      - name: Set up QEMU (for multi-platform builds, optional but good practice)
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          driver-opts: image=moby/buildkit:v0.12.4 # Pin buildkit version for stability
+          driver-opts: image=moby/buildkit:v0.12.4
 
       - name: Log in to Docker Hub
-        if: ${{ secrets.DOCKER_HUB_USERNAME != '' && secrets.DOCKER_HUB_ACCESS_TOKEN != '' }}
+        if: env.HAS_DOCKER_HUB_CREDS == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Log in to GitHub Container Registry
-        if: ${{ secrets.GITHUB_TOKEN != '' }}
+        if: env.HAS_GITHUB_TOKEN == 'true'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -75,52 +69,40 @@ jobs:
       - name: Prepare Docker Build Arguments and Tags
         id: prep_build
         run: |
-          DOCKER_IMAGE_NAME_DH="geniusdynamics/erpnext" # Docker Hub image name
-          DOCKER_IMAGE_NAME_GHCR="ghcr.io/${{ github.repository_owner }}/erpnext" # GHCR image name
+          DOCKER_IMAGE_NAME_DH="geniusdynamics/erpnext"
+          DOCKER_IMAGE_NAME_GHCR="ghcr.io/${{ github.repository_owner }}/erpnext"
 
-          TAG_VERSION="${{ env.IMAGE_TAG_VERSION }}" # e.g., 15.2.0
-          FRAPPE_MAJOR_VERSION_ONLY=$(echo $TAG_VERSION | cut -d. -f1) # e.g. 15
-          TAG_MAJOR="v${FRAPPE_MAJOR_VERSION_ONLY}" # e.g., v15
+          TAG_VERSION="${{ env.IMAGE_TAG_VERSION }}"
+          FRAPPE_MAJOR_VERSION_ONLY=$(echo $TAG_VERSION | cut -d. -f1)
+          TAG_MAJOR="v${FRAPPE_MAJOR_VERSION_ONLY}"
 
-          echo "Building with ERPNext Version Tag: ${{ env.ERPNext_VERSION_TAG }}"
-          echo "Using Frappe Branch for build: ${{ env.FRAPPE_BRANCH_FOR_BUILD }}"
+          echo "Building ERPNext image for version $TAG_VERSION using Frappe branch ${{ env.FRAPPE_BRANCH_FOR_BUILD }}"
 
           BUILD_ARGS="--build-arg ERPNEXT_VERSION=${{ env.ERPNext_VERSION_TAG }} --build-arg FRAPPE_BRANCH=${{ env.FRAPPE_BRANCH_FOR_BUILD }}"
 
-          # Optional: Allow APPS_JSON_URL to be passed via secrets or vars
           if [ -n "${{ secrets.APPS_JSON_URL }}" ]; then
             BUILD_ARGS="$BUILD_ARGS --build-arg APPS_JSON_URL=${{ secrets.APPS_JSON_URL }}"
-            echo "Using APPS_JSON_URL: ${{ secrets.APPS_JSON_URL }}"
           elif [ -n "${{ vars.APPS_JSON_URL }}" ]; then
             BUILD_ARGS="$BUILD_ARGS --build-arg APPS_JSON_URL=${{ vars.APPS_JSON_URL }}"
-            echo "Using APPS_JSON_URL: ${{ vars.APPS_JSON_URL }}"
-          else
-            echo "No APPS_JSON_URL provided, will use local apps.json from repository."
           fi
 
-          # Prepare tags list
           DOCKER_TAGS=""
-          # Docker Hub Tags
-          if [ -n "${{ secrets.DOCKER_HUB_USERNAME }}" ]; then
+
+          if [ "${{ env.HAS_DOCKER_HUB_CREDS }}" = "true" ]; then
             DOCKER_TAGS="$DOCKER_TAGS,$DOCKER_IMAGE_NAME_DH:$TAG_VERSION"
             DOCKER_TAGS="$DOCKER_TAGS,$DOCKER_IMAGE_NAME_DH:$TAG_MAJOR"
-            # Optionally add :latest if this is the main branch build and matches latest release
-            # For now, explicit versioning is safer.
-            # DOCKER_TAGS="$DOCKER_TAGS,$DOCKER_IMAGE_NAME_DH:latest"
           fi
-          # GHCR Tags
-          if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
+
+          if [ "${{ env.HAS_GITHUB_TOKEN }}" = "true" ]; then
             DOCKER_TAGS="$DOCKER_TAGS,$DOCKER_IMAGE_NAME_GHCR:$TAG_VERSION"
             DOCKER_TAGS="$DOCKER_TAGS,$DOCKER_IMAGE_NAME_GHCR:$TAG_MAJOR"
-            # DOCKER_TAGS="$DOCKER_TAGS,$DOCKER_IMAGE_NAME_GHCR:latest"
           fi
 
-          # Remove leading comma if present
           DOCKER_TAGS=$(echo $DOCKER_TAGS | sed 's/^,//')
 
-          echo "DOCKER_BUILD_ARGS=${BUILD_ARGS}" >> $GITHUB_ENV
-          echo "FINAL_DOCKER_TAGS=${DOCKER_TAGS}" >> $GITHUB_ENV
-          echo "Final Docker Tags: ${DOCKER_TAGS}"
+          echo "DOCKER_BUILD_ARGS=$BUILD_ARGS" >> $GITHUB_ENV
+          echo "FINAL_DOCKER_TAGS=$DOCKER_TAGS" >> $GITHUB_ENV
+          echo "Prepared Docker Tags: $DOCKER_TAGS"
 
       - name: Build and Push Docker Image
         if: env.FINAL_DOCKER_TAGS != ''
@@ -128,7 +110,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          platforms: linux/amd64,linux/arm64 # Example multi-platform build
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ env.FINAL_DOCKER_TAGS }}
           build-args: ${{ env.DOCKER_BUILD_ARGS }}
@@ -137,10 +119,7 @@ jobs:
 
       - name: Summary
         run: |
-          echo "Workflow finished."
-          echo "ERPNext Version Tag used: ${{ env.ERPNext_VERSION_TAG }}"
-          echo "Frappe Branch for build: ${{ env.FRAPPE_BRANCH_FOR_BUILD }}"
-          echo "Image tags pushed: ${{ env.FINAL_DOCKER_TAGS }}"
-          if [ -z "${{ env.FINAL_DOCKER_TAGS }}" ]; then
-            echo "No images were pushed as no registry credentials were configured or an error occurred."
-          fi
+          echo "Build completed."
+          echo "ERPNext Version: ${{ env.ERPNext_VERSION_TAG }}"
+          echo "Frappe Branch: ${{ env.FRAPPE_BRANCH_FOR_BUILD }}"
+          echo "Tags pushed: ${{ env.FINAL_DOCKER_TAGS }}"
