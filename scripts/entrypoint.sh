@@ -1,6 +1,12 @@
 #!/bin/bash
 set -eo pipefail
 
+# Optional Debug Logging
+if [ "$DEBUG_ENTRYPOINT" = "true" ]; then
+    echo "DEBUG_ENTRYPOINT enabled: Activating verbose script execution (set -x)."
+    set -x
+fi
+
 # Default bench command if nothing specific is requested
 DEFAULT_COMMAND="start"
 FRAPPE_BENCH_DIR="/home/frappe/frappe-bench"

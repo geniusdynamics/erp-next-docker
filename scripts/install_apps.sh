@@ -21,10 +21,8 @@ fi
 echo "Using apps.json from: $APPS_JSON_PATH"
 
 if ! jq -e . "$APPS_JSON_PATH" > /dev/null; then
-    echo "Error: Invalid JSON in $APPS_JSON_PATH. Skipping custom app installation."
-    # Optionally, exit 1 to fail the build if apps.json is present but invalid
-    # For now, we'll allow the build to continue without custom apps if JSON is malformed.
-    exit 0
+    echo "Error: Invalid JSON in $APPS_JSON_PATH. Custom app installation cannot proceed."
+    exit 1 # Fail the build
 fi
 
 # Ensure we are in the frappe-bench directory

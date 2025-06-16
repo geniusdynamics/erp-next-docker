@@ -89,5 +89,12 @@ USER frappe
 VOLUME ["/home/frappe/frappe-bench/sites","/home/frappe/frappe-bench/sites/assets","/home/frappe/frappe-bench/logs"]
 EXPOSE 80
 
+LABEL org.opencontainers.image.title="ERPNext NS8 Docker Image" \
+      org.opencontainers.image.description="Customizable ERPNext Docker image designed for NethServer 8 (NS8) and general use, featuring multi-site support and dynamic app installation." \
+      org.opencontainers.image.source="https://github.com/geniusdynamics/erp-next-docker" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.vendor="Genius Dynamics" \
+      maintainer="Genius Dynamics <info@geniusdynamics.com>"
+
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["start"]

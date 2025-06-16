@@ -4,9 +4,14 @@ on:
   schedule:
     - cron: '0 2 * * *' # Run daily at 2 AM UTC
   workflow_dispatch: # Allow manual triggering
-  push: # Also trigger on push to main for testing/updates to the workflow itself or Dockerfile
+  push:
     branches:
       - main # Or your default branch
+    paths:
+      - 'Dockerfile'
+      - 'apps.json'
+      - 'scripts/**'
+      - '.github/workflows/autobuild.yml'
 
 jobs:
   build-and-push:

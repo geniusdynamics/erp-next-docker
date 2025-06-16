@@ -76,6 +76,11 @@ services:
     restart: unless-stopped
     volumes:
       - redis_cache_data:/data
+    healthcheck: # New healthcheck
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis-queue:
     image: redis:6.2-alpine
@@ -83,6 +88,11 @@ services:
     restart: unless-stopped
     volumes:
       - redis_queue_data:/data
+    healthcheck: # New healthcheck
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   erpnext_sites: # Stores site-specific data, apps, configs
