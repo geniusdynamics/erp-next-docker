@@ -35,7 +35,7 @@ RUN apt-get update && \
         restic gpg mariadb-client less libpq-dev postgresql-client wait-for-it jq && \
     rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g yarn
+RUN npm install -g yarn --verbose
 
 RUN pip3 install frappe-bench
 
