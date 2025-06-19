@@ -37,11 +37,14 @@ jobs:
         run: |
           echo "Initial disk space:"
           df -h
-          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost /usr/local/lib/android /opt/hostedtoolcache/CodeQL
-          sudo docker system prune -af --volumes
+          echo "Attempting to remove large pre-installed toolsets..."
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost /usr/local/lib/android /opt/hostedtoolcache/CodeQL || true
+          echo "Attempting to prune Docker system..."
+          sudo docker system prune -af --volumes || true
+          echo "Attempting to clean apt cache..."
           sudo apt-get clean || true
-          sudo rm -rf /var/lib/apt/lists/*
-          echo "Disk space after cleanup:"
+          sudo rm -rf /var/lib/apt/lists/* || true
+          echo "Disk space after cleanup attempts:"
           df -h
 
       - name: Set up Docker Buildx
