@@ -77,8 +77,9 @@ RUN echo "Cleaning up .git directory from frappe app after bench init..." && \
 RUN if [ -n "${APPS_JSON_BASE64}" ]; then echo "${APPS_JSON_BASE64}" | base64 -d > /opt/frappe/apps.json; fi
 COPY apps.json /home/frappe/frappe-bench/apps.json
 RUN /home/frappe/scripts/install_apps.sh
-RUN echo "Cleaning .git directories from apps..." && \
-    find /home/frappe/frappe-bench/apps -name .git -type d -print -exec rm -rf {} \;
+RUN echo "Attempting to clean .git directories from apps (individual rm errors will be ignored)..." && \
+    find /home/frappe/frappe-bench/apps -name .git -type d -print -exec sh -c 'rm -rf "$1" || true' _ {} \; && \
+    echo "Finished attempting to clean .git directories."
 RUN echo "Cleaning .github directories from apps..." && \
     find /home/frappe/frappe-bench/apps -name .github -type d -print -exec rm -rf {} \;
 RUN echo "Cleaning app-level node_modules from apps..." && \
