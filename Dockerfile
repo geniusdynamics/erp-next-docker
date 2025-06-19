@@ -33,14 +33,14 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install nvm, node, yarn
-RUN set -x && mkdir -p ${NVM_DIR} && \
+RUN mkdir -p ${NVM_DIR} && \
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-RUN set -x && . ${NVM_DIR}/nvm.sh && \
+RUN . ${NVM_DIR}/nvm.sh && \
     nvm install ${NODE_VERSION}
-RUN set -x && . ${NVM_DIR}/nvm.sh && \
+RUN . ${NVM_DIR}/nvm.sh && \
     nvm use v${NODE_VERSION} && \
     npm install -g yarn
-RUN set -x && . ${NVM_DIR}/nvm.sh && \
+RUN . ${NVM_DIR}/nvm.sh && \
     nvm alias default v${NODE_VERSION} && \
     rm -rf ${NVM_DIR}/.cache && \
     echo "export NVM_DIR=/home/frappe/.nvm" >> /home/frappe/.bashrc && \
@@ -66,13 +66,16 @@ WORKDIR /home/frappe
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
 ARG FRAPPE_BRANCH
 RUN echo "Starting bench init..."
-RUN set -x && bench init /home/frappe/frappe-bench     --frappe-branch=${FRAPPE_BRANCH}     --frappe-path=${FRAPPE_PATH}     --no-procfile     --no-backups     --skip-redis-config-generation     --verbose
+RUN bench init /home/frappe/frappe-bench     --frappe-branch=${FRAPPE_BRANCH}     --frappe-path=${FRAPPE_PATH}     --no-procfile     --no-backups     --skip-redis-config-generation     --verbose
 RUN echo "Finished bench init."
 
 # Handle apps.json
 RUN if [ -n "${APPS_JSON_BASE64}" ]; then echo "${APPS_JSON_BASE64}" | base64 -d > /opt/frappe/apps.json; fi
 COPY apps.json /home/frappe/frappe-bench/apps.json
 RUN /home/frappe/scripts/install_apps.sh
+RUN find /home/frappe/frappe-bench/apps -mindepth 2 -name .git -type d -print -exec rm -rf {} + && \
+    find /home/frappe/frappe-bench/apps -mindepth 2 -name .github -type d -print -exec rm -rf {} + && \
+    find /home/frappe/frappe-bench/apps -mindepth 2 -name .gitignore -type f -print -delete
 
 # ----------- Final runtime stage ----------
 FROM python:3.11.6-slim-bookworm AS final
