@@ -52,6 +52,7 @@ RUN . ${NVM_DIR}/nvm.sh && \
 FROM base AS builder
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y     wget libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libffi-dev liblcms2-dev     libldap2-dev libmariadb-dev libsasl2-dev libtiff5-dev libwebp-dev redis-tools rlwrap tk8.6-dev cron     libmagic1 gcc build-essential libbz2-dev pkg-config  && rm -rf /var/lib/apt/lists/*
 
+RUN pip3 install --no-cache-dir cairocffi==1.5.1
 RUN pip3 install frappe-bench
 
 ARG APPS_JSON_BASE64
