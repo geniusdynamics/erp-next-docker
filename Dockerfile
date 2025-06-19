@@ -76,18 +76,25 @@ RUN echo "Cleaning up .git directory from frappe app after bench init..." && \
 RUN if [ -n "${APPS_JSON_BASE64}" ]; then echo "${APPS_JSON_BASE64}" | base64 -d > /opt/frappe/apps.json; fi
 COPY apps.json /home/frappe/frappe-bench/apps.json
 RUN /home/frappe/scripts/install_apps.sh
-RUN echo "Starting comprehensive cleanup of apps and bench directories..." && \
-    find /home/frappe/frappe-bench/apps -name .git -type d -print -exec rm -rf {} \; && \
-    find /home/frappe/frappe-bench/apps -name .github -type d -print -exec rm -rf {} \; && \
-    find /home/frappe/frappe-bench/apps -name node_modules -type d -print -exec rm -rf {} \; && \
-    find /home/frappe/frappe-bench/apps -name '*.pyc' -type f -print -delete && \
-    find /home/frappe/frappe-bench/apps -name '*.pyo' -type f -print -delete && \
-    find /home/frappe/frappe-bench/apps -name '__pycache__' -type d -print -exec rm -rf {} \; && \
-    echo "Cleaning up main bench node_modules and bower_components..." && \
-    rm -rf /home/frappe/frappe-bench/sites/.assets/node_modules && \
-    rm -rf /home/frappe/frappe-bench/node_modules && \
-    rm -rf /home/frappe/frappe-bench/bower_components && \
-    echo "Comprehensive cleanup done."
+RUN echo "Cleaning .git directories from apps..." && \
+    find /home/frappe/frappe-bench/apps -name .git -type d -print -exec rm -rf {} \;
+RUN echo "Cleaning .github directories from apps..." && \
+    find /home/frappe/frappe-bench/apps -name .github -type d -print -exec rm -rf {} \;
+RUN echo "Cleaning app-level node_modules from apps..." && \
+    find /home/frappe/frappe-bench/apps -name node_modules -type d -print -exec rm -rf {} \;
+RUN echo "Cleaning .pyc files from apps..." && \
+    find /home/frappe/frappe-bench/apps -name '*.pyc' -type f -print -delete
+RUN echo "Cleaning .pyo files from apps..." && \
+    find /home/frappe/frappe-bench/apps -name '*.pyo' -type f -print -delete
+RUN echo "Cleaning __pycache__ directories from apps..." && \
+    find /home/frappe/frappe-bench/apps -name '__pycache__' -type d -print -exec rm -rf {} \;
+RUN echo "Cleaning up main bench sites/.assets/node_modules..." && \
+    rm -rf /home/frappe/frappe-bench/sites/.assets/node_modules
+RUN echo "Cleaning up main bench node_modules..." && \
+    rm -rf /home/frappe/frappe-bench/node_modules
+RUN echo "Cleaning up main bench bower_components..." && \
+    rm -rf /home/frappe/frappe-bench/bower_components
+RUN echo "Comprehensive cleanup separation complete."
 
 # ----------- Final runtime stage ----------
 FROM python:3.11.6-slim-bookworm AS final
