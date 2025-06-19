@@ -19,12 +19,9 @@ FROM python:3.11.6-slim-bookworm AS base
 
 # Re-declare required args (not inherited automatically across stages)
 ARG NODE_VERSION
-ENV PATH="/usr/local/lib/node_modules/npm/bin:/usr/local/bin:$PATH"
-
-# Copy Node.js from official image directly
-COPY --from=node:18.18.2-alpine /usr/local/bin/node /usr/local/bin/node
-COPY --from=node:18.18.2-alpine /usr/local/bin/npm /usr/local/bin/npm
-COPY --from=node:18.18.2-alpine /usr/local/lib/node_modules /usr/local/lib/node_modules
+ENV NVM_DIR=/home/frappe/.nvm
+# Add NVM's bin to the PATH for subsequent RUN commands
+ENV PATH=${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
 
 RUN useradd -ms /bin/bash frappe
 
@@ -35,12 +32,23 @@ RUN apt-get update && \
         restic gpg mariadb-client less libpq-dev postgresql-client wait-for-it jq && \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=node:18.18.2-alpine /usr/local/bin/yarn /usr/local/bin/yarn
-COPY --from=node:18.18.2-alpine /opt/yarn* /opt/
+# Install nvm, node, yarn
+RUN mkdir -p ${NVM_DIR} && \
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash && \
+    . ${NVM_DIR}/nvm.sh && \
+    nvm install ${NODE_VERSION} && \
+    nvm use v${NODE_VERSION} && \
+    npm install -g yarn && \
+    nvm alias default v${NODE_VERSION} && \
+    rm -rf ${NVM_DIR}/.cache && \
+    echo "export NVM_DIR=/home/frappe/.nvm" >> /home/frappe/.bashrc && \
+    echo '[ -s "${NVM_DIR}/nvm.sh" ] && \. "${NVM_DIR}/nvm.sh"' >> /home/frappe/.bashrc && \
+    echo '[ -s "${NVM_DIR}/bash_completion" ] && \. "${NVM_DIR}/bash_completion"' >> /home/frappe/.bashrc && \
+    chown -R frappe:frappe ${NVM_DIR}
 
 # ----------- Builder stage ----------
 FROM base AS builder
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y     wget libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libffi-dev liblcms2-dev     libldap2-dev libmariadb-dev libsasl2-dev libtiff5-dev libwebp-dev redis-tools rlwrap tk8.6-dev cron     libmagic1 gcc build-essential libbz2-dev  && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y     wget libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libffi-dev liblcms2-dev     libldap2-dev libmariadb-dev libsasl2-dev libtiff5-dev libwebp-dev redis-tools rlwrap tk8.6-dev cron     libmagic1 gcc build-essential libbz2-dev pkg-config  && rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install frappe-bench
 
@@ -55,7 +63,7 @@ USER frappe
 WORKDIR /home/frappe
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
 ARG FRAPPE_BRANCH
-RUN bench init frappe-bench     --frappe-branch=${FRAPPE_BRANCH}     --frappe-path=${FRAPPE_PATH}     --no-procfile     --no-backups     --skip-redis-config-generation     --verbose
+RUN bench init /home/frappe/frappe-bench     --frappe-branch=${FRAPPE_BRANCH}     --frappe-path=${FRAPPE_PATH}     --no-procfile     --no-backups     --skip-redis-config-generation     --verbose
 
 # Handle apps.json
 RUN if [ -n "${APPS_JSON_BASE64}" ]; then echo "${APPS_JSON_BASE64}" | base64 -d > /opt/frappe/apps.json; fi
