@@ -35,7 +35,8 @@ RUN apt-get update && \
         restic gpg mariadb-client less libpq-dev postgresql-client wait-for-it jq && \
     rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g yarn --verbose
+COPY --from=node:18.18.2-alpine /usr/local/bin/yarn /usr/local/bin/yarn
+COPY --from=node:18.18.2-alpine /opt/yarn* /opt/
 
 # ----------- Builder stage ----------
 FROM base AS builder
