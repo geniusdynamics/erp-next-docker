@@ -33,12 +33,14 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install nvm, node, yarn
-RUN mkdir -p ${NVM_DIR} && \
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash && \
-    . ${NVM_DIR}/nvm.sh && \
-    nvm install ${NODE_VERSION} && \
+RUN set -x && mkdir -p ${NVM_DIR} && \
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+RUN set -x && . ${NVM_DIR}/nvm.sh && \
+    nvm install ${NODE_VERSION}
+RUN set -x && . ${NVM_DIR}/nvm.sh && \
     nvm use v${NODE_VERSION} && \
-    npm install -g yarn && \
+    npm install -g yarn
+RUN set -x && . ${NVM_DIR}/nvm.sh && \
     nvm alias default v${NODE_VERSION} && \
     rm -rf ${NVM_DIR}/.cache && \
     echo "export NVM_DIR=/home/frappe/.nvm" >> /home/frappe/.bashrc && \
@@ -63,7 +65,9 @@ USER frappe
 WORKDIR /home/frappe
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
 ARG FRAPPE_BRANCH
-RUN bench init /home/frappe/frappe-bench     --frappe-branch=${FRAPPE_BRANCH}     --frappe-path=${FRAPPE_PATH}     --no-procfile     --no-backups     --skip-redis-config-generation     --verbose
+RUN echo "Starting bench init..."
+RUN set -x && bench init /home/frappe/frappe-bench     --frappe-branch=${FRAPPE_BRANCH}     --frappe-path=${FRAPPE_PATH}     --no-procfile     --no-backups     --skip-redis-config-generation     --verbose
+RUN echo "Finished bench init."
 
 # Handle apps.json
 RUN if [ -n "${APPS_JSON_BASE64}" ]; then echo "${APPS_JSON_BASE64}" | base64 -d > /opt/frappe/apps.json; fi
