@@ -68,14 +68,26 @@ ARG FRAPPE_BRANCH
 RUN echo "Starting bench init..."
 RUN bench init /home/frappe/frappe-bench     --frappe-branch=${FRAPPE_BRANCH}     --frappe-path=${FRAPPE_PATH}     --no-procfile     --no-backups     --skip-redis-config-generation     --verbose
 RUN echo "Finished bench init."
+RUN echo "Cleaning up .git directory from frappe app after bench init..." && \
+    rm -rf /home/frappe/frappe-bench/apps/frappe/.git && \
+    echo "Done cleaning frappe app .git directory."
 
 # Handle apps.json
 RUN if [ -n "${APPS_JSON_BASE64}" ]; then echo "${APPS_JSON_BASE64}" | base64 -d > /opt/frappe/apps.json; fi
 COPY apps.json /home/frappe/frappe-bench/apps.json
 RUN /home/frappe/scripts/install_apps.sh
-RUN find /home/frappe/frappe-bench/apps -mindepth 2 -name .git -type d -print -exec rm -rf {} + && \
-    find /home/frappe/frappe-bench/apps -mindepth 2 -name .github -type d -print -exec rm -rf {} + && \
-    find /home/frappe/frappe-bench/apps -mindepth 2 -name .gitignore -type f -print -delete
+RUN echo "Starting comprehensive cleanup of apps and bench directories..." && \
+    find /home/frappe/frappe-bench/apps -name .git -type d -print -exec rm -rf {} \; && \
+    find /home/frappe/frappe-bench/apps -name .github -type d -print -exec rm -rf {} \; && \
+    find /home/frappe/frappe-bench/apps -name node_modules -type d -print -exec rm -rf {} \; && \
+    find /home/frappe/frappe-bench/apps -name '*.pyc' -type f -print -delete && \
+    find /home/frappe/frappe-bench/apps -name '*.pyo' -type f -print -delete && \
+    find /home/frappe/frappe-bench/apps -name '__pycache__' -type d -print -exec rm -rf {} \; && \
+    echo "Cleaning up main bench node_modules and bower_components..." && \
+    rm -rf /home/frappe/frappe-bench/sites/.assets/node_modules && \
+    rm -rf /home/frappe/frappe-bench/node_modules && \
+    rm -rf /home/frappe/frappe-bench/bower_components && \
+    echo "Comprehensive cleanup done."
 
 # ----------- Final runtime stage ----------
 FROM python:3.11.6-slim-bookworm AS final
