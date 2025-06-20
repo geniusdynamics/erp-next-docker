@@ -83,16 +83,19 @@ RUN echo "Attempting to list .git directories in apps..." && \
 RUN echo "Attempting to clean .git directories from apps using xargs..." && \
     find /home/frappe/frappe-bench/apps -name .git -type d -print0 | xargs -0 -r rm -rf && \
     echo "Finished cleaning .git directories with xargs."
-RUN echo "Cleaning .github directories from apps..." && \
-    find /home/frappe/frappe-bench/apps -name .github -type d -print -exec rm -rf {} \;
-RUN echo "Cleaning app-level node_modules from apps..." && \
-    find /home/frappe/frappe-bench/apps -name node_modules -type d -print -exec rm -rf {} \;
+RUN echo "Cleaning .github directories from apps using xargs..." && \
+    find /home/frappe/frappe-bench/apps -name .github -type d -print0 | xargs -0 -r rm -rf && \
+    echo "Finished cleaning .github directories with xargs."
+RUN echo "Cleaning app-level node_modules from apps using xargs..." && \
+    find /home/frappe/frappe-bench/apps -name node_modules -type d -print0 | xargs -0 -r rm -rf && \
+    echo "Finished cleaning app-level node_modules with xargs."
 RUN echo "Cleaning .pyc files from apps..." && \
     find /home/frappe/frappe-bench/apps -name '*.pyc' -type f -print -delete
 RUN echo "Cleaning .pyo files from apps..." && \
     find /home/frappe/frappe-bench/apps -name '*.pyo' -type f -print -delete
-RUN echo "Cleaning __pycache__ directories from apps..." && \
-    find /home/frappe/frappe-bench/apps -name '__pycache__' -type d -print -exec rm -rf {} \;
+RUN echo "Cleaning __pycache__ directories from apps using xargs..." && \
+    find /home/frappe/frappe-bench/apps -name '__pycache__' -type d -print0 | xargs -0 -r rm -rf && \
+    echo "Finished cleaning __pycache__ directories with xargs."
 RUN echo "Cleaning up main bench sites/.assets/node_modules..." && \
     rm -rf /home/frappe/frappe-bench/sites/.assets/node_modules
 RUN echo "Cleaning up main bench node_modules..." && \
