@@ -50,7 +50,7 @@ RUN . ${NVM_DIR}/nvm.sh && \
 
 # ----------- Builder stage ----------
 FROM base AS builder
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y     wget libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libffi-dev liblcms2-dev     libldap2-dev libmariadb-dev libsasl2-dev libtiff5-dev libwebp-dev redis-tools rlwrap tk8.6-dev cron     libmagic1 gcc build-essential libbz2-dev pkg-config  && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y     wget libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libffi-dev liblcms2-dev     libldap2-dev libmariadb-dev libsasl2-dev libtiff5-dev libwebp-dev redis-tools rlwrap tk8.6-dev cron     libmagic1 gcc build-essential libbz2-dev pkg-config python3-dev  && rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install --no-cache-dir cairocffi==1.5.1
 RUN pip3 install frappe-bench
@@ -66,8 +66,24 @@ USER frappe
 WORKDIR /home/frappe
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
 ARG FRAPPE_BRANCH
-RUN echo "Starting bench init..."
-RUN bench init /home/frappe/frappe-bench     --frappe-branch=${FRAPPE_BRANCH}     --frappe-path=${FRAPPE_PATH}     --no-procfile     --no-backups     --skip-redis-config-generation     --verbose
+RUN for i in 1 2 3; do \
+      echo "Attempt $i of 3: Initializing bench..." && \
+      bench init /home/frappe/frappe-bench \
+        --frappe-branch=${FRAPPE_BRANCH} \
+        --frappe-path=${FRAPPE_PATH} \
+        --no-procfile \
+        --no-backups \
+        --skip-redis-config-generation \
+        --verbose && \
+      echo "Bench init successful on attempt $i." && \
+      break; \
+      echo "Attempt $i failed. Retrying in 10 seconds..." && \
+      sleep 10; \
+      if [ $i -eq 3 ]; then \
+        echo "bench init failed after 3 attempts." && \
+        exit 1; \
+      fi; \
+    done
 RUN echo "Finished bench init."
 RUN echo "Cleaning up .git directory from frappe app after bench init..." && \
     rm -rf /home/frappe/frappe-bench/apps/frappe/.git && \
