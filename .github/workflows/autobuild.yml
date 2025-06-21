@@ -106,7 +106,7 @@ jobs:
           tags: ${{ env.FINAL_TAGS }}
           build-args: |
             ${{ env.BUILD_ARGS }}
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
