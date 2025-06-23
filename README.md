@@ -207,6 +207,7 @@ Refer to the `docker-compose.yml` and `example.env` files for more details on se
 ## Image Tagging
 
 Images pushed to Docker Hub/GHCR by the CI workflow are tagged as:
+
 -   `geniusdynamics/erpnext:<version>` (e.g., `geniusdynamics/erpnext:15.1.0`)
 -   `geniusdynamics/erpnext:<major_version>` (e.g., `geniusdynamics/erpnext:v15`)
 
