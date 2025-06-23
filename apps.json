@@ -5,26 +5,18 @@
   },
   {
     "url": "https://github.com/frappe/payments",
-    "branch": "version-15"
+    "branch": "develop"
   },
   {
     "url": "https://github.com/genforge/navari_csf_ke",
-    "branch": "version-15"
+    "branch": "develop"
   },
   {
     "url": "https://github.com/frappe/hrms",
-    "branch": "version-15"
-  },
-  {
-    "url": "https://github.com/genforge/kenya-compliance",
     "branch": "develop"
   },
   {
-    "url": "https://github.com/genforge/frappe-mpesa-payments",
-    "branch": "develop"
-  },
-  {
-    "url": "https://github.com/genforge/navari-mpesa-b2c",
+    "url": "https://github.com/genforge/frappe-mpsa-payments",
     "branch": "develop"
   },
   {
@@ -40,12 +32,16 @@
     "branch": "master"
   },
   {
+    "url": "https://github.com/genforge/whatsapp_chat",
+    "branch": "develop"
+  },
+  {
     "url": "https://github.com/frappe/education",
-    "branch": "version-15"
+    "branch": "develop"
   },
   {
     "url": "https://github.com/frappe/lms",
-    "branch": "main"
+    "branch": "develop"
   },
   {
     "url": "https://github.com/frappe/wiki",
@@ -77,11 +73,11 @@
   },
   {
     "url": "https://github.com/frappe/lending",
-    "branch": "version-15"
+    "branch": "develop"
   },
   {
     "url": "https://github.com/frappe/helpdesk",
-    "branch": "main"
+    "branch": "develop"
   },
   {
     "url": "https://github.com/genforge/pibicut",
@@ -101,15 +97,15 @@
   },
   {
     "url": "https://github.com/genforge/marley",
-    "branch": "version-15"
+    "branch": "develop"
   },
   {
     "url": "https://github.com/frappe/gameplan",
-    "branch": "main"
+    "branch": "develop"
   },
   {
     "url": "https://github.com/genforge/raven",
-    "branch": "main"
+    "branch": "develop"
   },
   {
     "url": "https://github.com/frappe/crm",
@@ -117,7 +113,7 @@
   },
   {
     "url": "https://github.com/frappe/builder",
-    "branch": "master"
+    "branch": "develop"
   },
   {
     "url": "https://github.com/genforge/cloud_storage",
@@ -148,28 +144,43 @@
     "branch": "main"
   },
   {
-    "url": "https://github.com/compgeniuses/erpnext-pibical",
-    "branch": "version-13"
-  },
-  {
     "url": "https://github.com/frappe/drive",
     "branch": "main"
   },
   {
     "url": "https://github.com/genforge/GETPOS",
-    "branch": "deployment-development"
+    "branch": "getpos-1.4"
   },
   {
     "url": "https://github.com/genforge/POS-Awesome",
     "branch": "version-15"
-  }
-  ,
+  },
   {
     "url": "https://github.com/genforge/PropMS",
     "branch": "version-15"
-  }  ,
+  },
   {
     "url": "https://github.com/genforge/Etims",
     "branch": "version-1.0.1"
+  },
+  {
+    "url": "https://github.com/genforge/utility-billing",
+    "branch": "develop"
+  },
+  {
+    "url": "https://github.com/genforge/pibical",
+    "branch": "develop"
+  },
+  {
+    "url": "https://github.com/genforge/Junior-School",
+    "branch": "develop"
+  },
+  {
+    "url": "https://github.com/genforge/kenya-compliance-via-slade",
+    "branch": "develop"
+  },
+  {
+    "url": "https://github.com/genforge/ProjectIT",
+    "branch": "main"
   }
 ]
