@@ -19,9 +19,9 @@ FROM python:3.11.6-slim-bookworm AS base
 
 # Re-declare required args (not inherited automatically across stages)
 ARG NODE_VERSION
-ENV NVM_DIR=/home/frappe/.nvm
+ENV NVM_DIR="/home/frappe/.nvm"
 # Add NVM's bin to the PATH for subsequent RUN commands
-ENV PATH=${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
+ENV PATH="${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 
 RUN useradd -ms /bin/bash frappe
 
@@ -50,10 +50,35 @@ RUN . ${NVM_DIR}/nvm.sh && \
 
 # ----------- Builder stage ----------
 FROM base AS builder
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y     wget libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev libffi-dev liblcms2-dev     libldap2-dev libmariadb-dev libsasl2-dev libtiff5-dev libwebp-dev redis-tools rlwrap tk8.6-dev cron     libmagic1 gcc build-essential libbz2-dev pkg-config python3-dev  && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    wget \
+    libcairo2-dev \
+    libpango1.0-dev \
+    libjpeg-dev \
+    libgif-dev \
+    librsvg2-dev \
+    libffi-dev \
+    liblcms2-dev \
+    libldap2-dev \
+    libmariadb-dev \
+    libsasl2-dev \
+    libtiff5-dev \
+    libwebp-dev \
+    redis-tools \
+    rlwrap \
+    tk8.6-dev \
+    cron \
+    libmagic1 \
+    gcc \
+    build-essential \
+    libbz2-dev \
+    pkg-config \
+    python3-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --no-cache-dir cairocffi==1.5.1
-RUN pip3 install frappe-bench
+RUN pip3 install --no-cache-dir cairocffi==1.5.1 && rm -rf /root/.cache/pip
+RUN pip3 install --no-cache-dir frappe-bench && rm -rf /root/.cache/pip
 
 ARG APPS_JSON_BASE64
 ARG APPS_JSON_URL
