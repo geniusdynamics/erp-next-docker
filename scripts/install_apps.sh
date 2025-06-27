@@ -92,9 +92,10 @@ jq -r -c '.[]' "$APPS_JSON_PATH" | while IFS= read -r app_obj; do
         # Let's try to install dependencies directly if possible, or use a temp site.
         # The most direct way to install dependencies for a checked-out app is:
         echo "Installing Python dependencies for $app_name..."
+        BENCH_PIP="/home/frappe/frappe-bench/env/bin/pip"
         if [ -f "apps/$app_name/requirements.txt" ]; then
             echo "Found requirements.txt for $app_name. Installing..."
-            pip install --no-cache-dir -r "apps/$app_name/requirements.txt" && rm -rf /home/frappe/.cache/pip
+            $BENCH_PIP install --no-cache-dir -r "apps/$app_name/requirements.txt" && rm -rf /home/frappe/.cache/pip
         else
             echo "No direct requirements.txt found for $app_name. Dependencies will be handled by 'bench setup requirements' or 'bench install-app' if applicable."
         fi
@@ -103,7 +104,7 @@ jq -r -c '.[]' "$APPS_JSON_PATH" | while IFS= read -r app_obj; do
         # This is what `bench setup requirements` would partially do.
         if [ -f "apps/$app_name/setup.py" ]; then
             echo "Found setup.py for $app_name. Installing with pip editable..."
-            pip install --no-cache-dir -e "apps/$app_name" && rm -rf /home/frappe/.cache/pip
+            $BENCH_PIP install --no-cache-dir -e "apps/$app_name" && rm -rf /home/frappe/.cache/pip
         fi
 
         echo "Cleaning up after $app_name installation..."
