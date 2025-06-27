@@ -108,31 +108,34 @@ jq -r -c '.[]' "$APPS_JSON_PATH" | while IFS= read -r app_obj; do
         fi
 
         echo "Cleaning up after $app_name installation..."
-        # Clean .git directory
-        if [ -d "apps/$app_name/.git" ]; then
-            echo "Removing .git from apps/$app_name"
-            rm -rf "apps/$app_name/.git"
+        if [ -d "apps/$app_name" ]; then
+            # Clean .git directory
+            if [ -d "apps/$app_name/.git" ]; then
+                echo "Removing .git from apps/$app_name"
+                rm -rf "apps/$app_name/.git"
+            fi
+            # Clean .github directory
+            if [ -d "apps/$app_name/.github" ]; then
+                echo "Removing .github from apps/$app_name"
+                rm -rf "apps/$app_name/.github"
+            fi
+            # Clean app-level node_modules (less common for backend-focused apps, but good to check)
+            if [ -d "apps/$app_name/node_modules" ]; then
+                echo "Removing node_modules from apps/$app_name"
+                rm -rf "apps/$app_name/node_modules"
+            fi
+            # Clean __pycache__ and .pyc files
+            echo "Cleaning Python cache for apps/$app_name"
+            find "apps/$app_name" -type d -name "__pycache__" -print0 | xargs -0 -r rm -rf
+            find "apps/$app_name" -type f -name "*.pyc" -delete
+            echo "Successfully processed and cleaned app: $app_name"
+        else
+            echo "Warning: Directory apps/$app_name not found after get-app. Skipping cleanup for this app."
         fi
-        # Clean .github directory
-        if [ -d "apps/$app_name/.github" ]; then
-            echo "Removing .github from apps/$app_name"
-            rm -rf "apps/$app_name/.github"
-        fi
-        # Clean app-level node_modules (less common for backend-focused apps, but good to check)
-        if [ -d "apps/$app_name/node_modules" ]; then
-            echo "Removing node_modules from apps/$app_name"
-            rm -rf "apps/$app_name/node_modules"
-        fi
-        # Clean __pycache__ and .pyc files
-        echo "Cleaning Python cache for apps/$app_name"
-        find "apps/$app_name" -type d -name "__pycache__" -print0 | xargs -0 rm -rf
-        find "apps/$app_name" -type f -name "*.pyc" -delete
 
         # Consolidate pip cache cleanup to once after the loop if preferred,
         # but doing it per app minimizes peak cache size.
         # rm -rf /home/frappe/.cache/pip # Moved into pip install commands
-
-        echo "Successfully processed and cleaned app: $app_name"
     else
         echo "Failed to get app: $app_name. Continuing with next app."
         # Decide if build should fail on app install failure. For now, it continues.
