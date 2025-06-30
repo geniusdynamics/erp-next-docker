@@ -150,7 +150,7 @@ RUN echo "Comprehensive cleanup separation complete."
 FROM python:3.11.6-slim-bookworm AS final
 ENV PATH="/home/frappe/frappe-bench/env/bin:$PATH"
 
-ENV LANG="C.UTF-8"Add commentMore actions
+ENV LANG="C.UTF-8"
 ENV LC_ALL="C.UTF-8"
 ENV FRAPPE_DIR="/home/frappe/frappe-bench"
 
