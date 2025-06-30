@@ -149,9 +149,9 @@ RUN echo "Comprehensive cleanup separation complete."
 # ----------- Final runtime stage ----------
 FROM python:3.11.6-slim-bookworm AS final
 ENV PATH="/home/frappe/frappe-bench/env/bin:$PATH"
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
-ENV FRAPPE_DIR /home/frappe/frappe-bench
+ENV LANG="C.UTF-8"Add commentMore actions
+ENV LC_ALL="C.UTF-8"
+ENV FRAPPE_DIR="/home/frappe/frappe-bench"
 
 RUN apt-get update && apt-get install --no-install-recommends -y       curl git mariadb-client gettext-base nginx jq  && apt-get install --no-install-recommends -y       ca-certificates fontconfig libxrender1 libxtst6 libx11-6 xfonts-base xfonts-75dpi  && ARCH=""  && [ "$(uname -m)" = "x86_64" ] && ARCH=amd64 || ARCH=arm64  && WKHTML="wkhtmltox_0.12.6.1-3.bookworm_${ARCH}.deb"  && curl -sLO "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-3/${WKHTML}"  && apt-get install -y ./${WKHTML}  && rm -f ${WKHTML}  && rm -rf /var/lib/apt/lists/*
 
