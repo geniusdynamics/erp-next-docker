@@ -5,7 +5,7 @@ on:
     - cron: '0 2 * * *'
   workflow_dispatch:
   push:
-    branches: [autobuild-enhancements]
+    branches: [main]
     paths:
       - 'Dockerfile'
       - 'apps.json'
@@ -14,7 +14,7 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     env:
       DOCKER_HUB_USERNAME_SET: ${{ secrets.DOCKER_HUB_USERNAME != '' }}
@@ -27,13 +27,48 @@ jobs:
 
       - name: Fetch Latest ERPNext Release Tag
         id: get_erpnext_tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          LATEST=$(curl -s https://api.github.com/repos/frappe/erpnext/releases/latest | jq -r .tag_name)
-          echo "ERPNext_VERSION_TAG=$LATEST" >> $GITHUB_ENV
-          echo "FRAPPE_BRANCH_FOR_BUILD=version-$(echo $LATEST | cut -d. -f1 | sed 's/v//')" >> $GITHUB_ENV
-          echo "IMAGE_TAG_VERSION=$(echo $LATEST | sed 's/v//')" >> $GITHUB_ENV
+          API_URL="https://api.github.com/repos/frappe/erpnext/releases/latest"
+          HEADERS=(-H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GH_TOKEN" -H "X-GitHub-Api-Version: 2022-11-28")
+
+          LATEST_RELEASE_DATA=$(curl -sL "${HEADERS[@]}" "$API_URL")
+
+          if echo "$LATEST_RELEASE_DATA" | jq -e '.tag_name' > /dev/null; then
+            LATEST=$(echo "$LATEST_RELEASE_DATA" | jq -r .tag_name)
+            echo "Fetched LATEST version: $LATEST"
+          else
+            echo "Error fetching latest release data or parsing tag_name."
+            echo "API Response: $LATEST_RELEASE_DATA"
+            exit 1
+          fi
+
+          if [ -z "$LATEST" ] || [ "$LATEST" = "null" ]; then
+            echo "Error: LATEST version tag is empty or null after parsing."
+            exit 1
+          fi
+
+          ERPNext_VERSION_TAG="$LATEST"
+          FRAPPE_BRANCH_FOR_BUILD="version-$(echo "$LATEST" | cut -d. -f1 | sed 's/v//')"
+          IMAGE_TAG_VERSION="$(echo "$LATEST" | sed 's/v//')"
+
+          if [ -z "$IMAGE_TAG_VERSION" ] || [ "$IMAGE_TAG_VERSION" = "null" ]; then
+            echo "Error: IMAGE_TAG_VERSION is empty or null after processing LATEST tag."
+            exit 1
+          fi
+
+          echo "ERPNext_VERSION_TAG=$ERPNext_VERSION_TAG" >> $GITHUB_ENV
+          echo "FRAPPE_BRANCH_FOR_BUILD=$FRAPPE_BRANCH_FOR_BUILD" >> $GITHUB_ENV
+          echo "IMAGE_TAG_VERSION=$IMAGE_TAG_VERSION" >> $GITHUB_ENV
+
+          echo "Successfully set version tags:"
+          echo "ERPNext_VERSION_TAG: $ERPNext_VERSION_TAG"
+          echo "FRAPPE_BRANCH_FOR_BUILD: $FRAPPE_BRANCH_FOR_BUILD"
+          echo "IMAGE_TAG_VERSION: $IMAGE_TAG_VERSION"
 
       - name: Free up disk space on runner
+        if: runner.os != 'Windows' # df and rm commands are for Linux/macOS
         run: |
           echo "Initial disk space:"
           df -h

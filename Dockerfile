@@ -119,6 +119,8 @@ RUN echo "Cleaning up main bench node_modules..." && \
 RUN echo "Cleaning up main bench bower_components..." && \
     rm -rf /home/frappe/frappe-bench/bower_components
 RUN echo "Comprehensive cleanup separation complete."
+RUN echo "Verifying bench command in builder stage..." && \
+    /home/frappe/frappe-bench/env/bin/python -m bench --help
 
 # ----------- Final runtime stage ----------
 FROM python:3.11.6-slim-bookworm AS final
